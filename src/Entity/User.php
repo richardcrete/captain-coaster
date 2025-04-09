@@ -18,6 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: 'users')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+#[UniqueEntity(fields: ['displayName'], message: 'There is already an account with this name')]
 class User implements UserInterface
 {
     public function __construct()
@@ -57,7 +58,7 @@ class User implements UserInterface
     #[Assert\NotBlank]
     private string $firstName;
 
-    #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
+    #[ORM\Column(type: Types::STRING, length: 255, unique: true)]
     private ?string $displayName = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, unique: true)]

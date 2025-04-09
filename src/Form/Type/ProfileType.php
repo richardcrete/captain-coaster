@@ -26,11 +26,7 @@ class ProfileType extends AbstractType
         $locales = $options['locales'];
 
         $builder
-            ->add('displayName', ChoiceType::class, [
-                'choices' => [
-                    $completeName => $completeName,
-                    $partialName => $partialName,
-                ],
+            ->add('displayName', TextType::class, [
                 'label' => 'me.form.displayName',
                 'attr' => ['class' => 'form-control'],
             ])
