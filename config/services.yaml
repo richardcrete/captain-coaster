@@ -58,3 +58,8 @@ services:
 
     App\Service\UnitsService:
         class: App\Service\UnitsService
+
+    App\Service\LocaleService:
+        class: App\Service\LocaleService
+        arguments:
+            $locales: '%app_locales_array%'

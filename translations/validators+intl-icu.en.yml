@@ -1,1 +1,3 @@
 top_coaster.duplicate: "{coaster} appears several times. Please remove duplicates."
+translation.short: "{num} locales are used on the website. You have to define a translation for each one."
+translation.duplicate: "Translation in {locale} is already defined. Please remove duplicates."
