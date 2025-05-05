@@ -13,8 +13,14 @@
               {% for continent in filtersForm.continent %}
                 <option value="{{ continent.id }}"
                         {% if qS.filters.continent is defined and qS.filters.continent == continent.id %}selected{% endif %}>
-                  {{ continent.name|trans({}, 'database') }}
-                </option>
+                  {% for translation in continent.translations %}
+                  {% if translation.locale == app.request.locale %}
+                    {{ translation.name }}
+                  {% endif %}
+                  {% else %}
+                    {{ continent.name|trans({}, 'database') }}
+                  {% endfor %}
+                  </option>
               {% endfor %}
             </select>
           </div>
