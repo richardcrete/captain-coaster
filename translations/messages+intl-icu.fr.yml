@@ -101,9 +101,11 @@ coaster_ranking:
     duel_number: "{ count, plural, one { # duel } other { # duels }}"
     no_results: Pas de coaster
     info:
-        title: "Mis à jour : {rankingMonth}"
-        next: "Prochaine mise à jour {date}"
-        learn_more: En apprendre plus sur le classement
+        title: Dernière mise à jour le
+        current: "Classement du {date}"
+        next: Prochaine mise à jour
+        learn_more: En apprendre plus
+        learn_more_title: sur le classement
         coasters_ranked:
             short: coasters
             long: coasters classés

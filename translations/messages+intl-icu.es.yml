@@ -101,9 +101,11 @@ coaster_ranking:
     duel_number: "{ count, plural, one { # duelo } other { # duelos }}"
     no_results: "¡no se han encontrado montañas rusas!"
     info:
-        title: "Última actualización: {rankingMonth}"
-        next: "Próxima actualización {date}"
-        learn_more: Más información sobre la clasificación
+        title: Última actualización el
+        current: "Clasificación a {date}"
+        next: Próxima actualización
+        learn_more: Más información
+        learn_more_title: sobre la clasificación
         coasters_ranked:
             short: montañas rusas
             long: montañas rusas clasificados

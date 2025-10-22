@@ -1,0 +1,44 @@
+<div class="row mb-20">
+    <a href="{{ path('ranking_index') }}" class="col-md-4">
+        <div class="panel panel-body no-margin">
+            <div class="media no-margin">
+                <div class="media-body">
+                    <span
+                        class="text-uppercase text-size-mini text-muted">{{ 'coaster_ranking.info.title'|trans }}</span>
+                    <h6 class="no-margin text-semibold text-success-400">{{ lastRankingDate|format_datetime('long', 'none') }}</h6>
+                </div>
+                <div class="media-right media-middle">
+                    <i class="icon-history icon-2x text-success-400 opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </a>
+    <div class="col-md-4 no-padding">
+        <div class="panel panel-body no-margin">
+            <div class="media no-margin">
+                <div class="media-body">
+                    <span
+                        class="text-uppercase text-size-mini text-muted">{{ 'coaster_ranking.info.next'|trans }}</span>
+                    <h6 class="no-margin text-semibold text-blue-400">{{ 'now'|date_modify('first day of next month midnight 1 minute')|ago }}</h6>
+                </div>
+                <div class="media-right media-middle">
+                    <i class="icon-calendar3 icon-2x text-blue-400 opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="{{ path('ranking_learn_more') }}" class="col-md-4">
+        <div class="panel panel-body no-margin">
+            <div class="media no-margin">
+                <div class="media-body">
+                    <span
+                        class="text-uppercase text-size-mini text-muted">{{ 'coaster_ranking.info.learn_more'|trans() }}</span>
+                    <h6 class="no-margin text-semibold text-indigo-400">{{ 'coaster_ranking.info.learn_more_title'|trans() }}</h6>
+                </div>
+                <div class="media-right media-middle">
+                    <i class="icon-question3 icon-2x text-indigo-400 opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </a>
+</div>

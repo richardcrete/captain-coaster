@@ -101,9 +101,11 @@ coaster_ranking:
     duel_number: "{ count, plural, one { # duel } other { # duels }}"
     no_results: "Keine Achterbahnen gefunden!"
     info:
-        title: "Letzte Aktualisierung: {rankingMonth}"
-        next: "Nächste Aktualisierung {date}"
-        learn_more: Erfahre mehr über das Ranking
+        title: Letzte Aktualisierung am
+        current: "Rangliste vom {date}"
+        next: Nächste Aktualisierung
+        learn_more: Erfahre mehr
+        learn_more_title: über das Ranking
         coasters_ranked:
             short: Achterbahnen
             long: Eingestufte Achterbahnen
