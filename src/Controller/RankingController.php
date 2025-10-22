@@ -10,6 +10,7 @@ use App\Entity\Country;
 use App\Entity\Manufacturer;
 use App\Entity\MaterialType;
 use App\Entity\Model;
+use App\Entity\Ranking;
 use App\Entity\SeatingType;
 use App\Repository\RankingRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,6 +21,7 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/ranking')]
@@ -42,11 +44,49 @@ class RankingController extends AbstractController
     #[Route(path: '/', name: 'ranking_index', methods: ['GET'])]
     public function indexAction(): Response
     {
+        $ranking = $this->rankingRepository->findCurrent();
+
         return $this->render(
             'ranking/index.html.twig',
             [
-                'ranking' => $this->rankingRepository->findCurrent(),
-                'previousRanking' => $this->rankingRepository->findPrevious(),
+                'ranking' => $ranking,
+                'previousRanking' => $this->rankingRepository->findPrevious($ranking->getId()),
+                'nextRanking' => null,
+                'isNextRankingLast' => false,
+                'lastRankingDate' => $ranking->getComputedAt(),
+                'filtersForm' => $this->getFiltersForm(),
+            ]
+        );
+    }
+
+    /**
+     * Show former rankings.
+     *
+     * @throws InvalidArgumentException
+     */
+    #[Route(path: '/{date}', name: 'noncurrent_ranking', requirements: ['date' => '^(201[7-9]|20[2-9]\d)-(0[1-9]|1[0-2])'], methods: ['GET'])]
+    public function noncurrentRanking($date): Response
+    {
+        $date = new \DateTime($date);
+        $nextMonth = clone $date;
+        $nextMonth->modify('next month');
+        $ranking = $this->rankingRepository->findByYearAndMonth($date->format('Y-m-d'), $nextMonth->format('Y-m-d'));
+        if (!$ranking) {
+            throw new NotFoundHttpException();
+        }
+
+        $previousRanking = $this->rankingRepository->findPrevious($ranking->getId());
+        $nextRanking = $this->rankingRepository->findNext($ranking->getId());
+        $currentRaking = $this->rankingRepository->findCurrent();
+
+        return $this->render(
+            'ranking/index.html.twig',
+            [
+                'ranking' => $ranking,
+                'previousRanking' => $previousRanking,
+                'nextRanking' => $nextRanking,
+                'isNextRankingLast' => $nextRanking->getId() === $currentRaking->getId(),
+                'lastRankingDate' => $currentRaking->getComputedAt(),
                 'filtersForm' => $this->getFiltersForm(),
             ]
         );
@@ -82,17 +122,19 @@ class RankingController extends AbstractController
 
     /** @throws \Exception */
     #[Route(
-        path: '/coasters',
+        path: '/{id}/coasters/',
         name: 'ranking_search_async',
         options: ['expose' => true],
         methods: ['GET'],
         condition: 'request.isXmlHttpRequest()'
     )]
-    public function searchAsyncAction(#[MapQueryParameter] array $filters = [], #[MapQueryParameter] int $page = 1): Response
+    public function searchAsyncAction(Ranking $ranking, #[MapQueryParameter] array $filters = [], #[MapQueryParameter] int $page = 1): Response
     {
+        $previousRanking = $this->rankingRepository->findPrevious($ranking->getId());
+
         try {
             $pagination = $this->paginator->paginate(
-                $this->rankingRepository->findCoastersRanked($filters),
+                $this->rankingRepository->findCoastersRankedByRanking($ranking->getId(), $filters),
                 $page,
                 self::COASTERS_PER_PAGE
             );
@@ -103,10 +145,12 @@ class RankingController extends AbstractController
         return $this->render(
             'ranking/results.html.twig',
             [
-                'coasters' => $pagination,
+                'rankingHistory' => $pagination,
+                // Gets all RankingHistory, not paginated because a same coaster can be on different pages // TODO prevent memory leaks
+                'previousRankingHistory' => $this->rankingRepository->findCoastersRankedByRanking($previousRanking->getId(), [])->getArrayResult(),
                 // array_filter removes empty filters e.g. ['continent' => '']
                 // Exclude 'user' filter as it's a hidden field, not a user-visible filter
-                'filtered' => [] !== array_filter(array_diff_key($filters, ['user' => '']), 'strlen'),
+                'filtered' => [] !== array_filter(array_diff_key($filters, ['user' => '', 'ranking' => '']), 'strlen'),
                 'firstRank' => self::COASTERS_PER_PAGE * ($page - 1) + 1,
             ]
         );

@@ -1,7 +1,8 @@
 {% extends "base.html.twig" %}
 
 {% set title = 'coaster_ranking.title'|trans %}
-{% block title %}{{ title }}{% endblock %}
+{% set subTitle = ranking.computedAt|format_date('long', locale: app.locale) %}
+{% block title %}{{ title }} • {{ subTitle }}{% endblock %}
 
 {% block header %}
   <meta name="description" content="{{ 'coaster_ranking.description'|trans }}"/>
@@ -10,11 +11,12 @@
 {% set pageHasFilters = true %}
 
 {% block secondary_sidebar %}
-  {% include 'ranking/filters.html.twig' %}
+  {% include 'ranking/filters.html.twig' with {'ranking': ranking} %}
 {% endblock %}
 
 {% block body %}
-  {% include 'ranking/info.html.twig' with {'ranking': ranking, 'previousRanking': previousRanking} only %}
+  {% include 'ranking/widgets.html.twig' with {'ranking': ranking, 'previousRanking': previousRanking, 'nextRanking': nextRanking, 'lastRankingDate': lastRankingDate} only %}
+  {% include 'ranking/info.html.twig' with {'ranking': ranking, 'previousRanking': previousRanking, 'nextRanking': nextRanking, 'isNextRankingLast': isNextRankingLast} only %}
   <div id="ranking-result"></div>
 {% endblock %}
 
@@ -24,7 +26,10 @@
     var containerId = 'ranking-result';
     function filterData() {
       $.ajax({
-        url: Routing.generate('ranking_search_async', {'_locale': '{{ app.request.locale }}'}),
+        url: Routing.generate('ranking_search_async', {
+            '_locale': '{{ app.request.locale }}',
+            'id': {{ ranking.id }}
+        }),
         type: 'GET',
         data: $('form').serialize(),
       }).done(function(data) {
@@ -35,7 +40,7 @@
     }
 
     function ajaxPager() {
-      $('ul.pagination a').click(function(e) {
+      $('.Ranking-pagination ul.pagination a').click(function(e) {
         e.preventDefault();
         var pageUrl = $(this).attr('href');
         var queryString = pageUrl.split('?')[1];
@@ -59,7 +64,7 @@
         window.history.pushState(
             {"html":'Ranking',"pageTitle":'Ranking'},
             "",
-            window.location.pathname + '?' + $('form *:not(input[id="form-user"])').serialize()
+            window.location.pathname + '?' + $('form *:not(input[class="hidden-filters"])').serialize()
         );
     }
 
@@ -78,7 +83,10 @@
       });
 
       $.ajax({
-        url: Routing.generate('ranking_search_async', {'_locale': '{{ app.request.locale }}'}),
+        url: Routing.generate('ranking_search_async', {
+            '_locale': '{{ app.request.locale }}',
+            'id': {{ ranking.id }}
+        }),
         type: 'GET',
         data: $('form').serialize(),
       }).done(function(data) {

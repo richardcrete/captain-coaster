@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\Coaster;
 use App\Entity\Ranking;
+use App\Entity\RankingHistory;
 use App\Entity\RiddenCoaster;
 use App\Entity\Status;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -41,17 +42,54 @@ class RankingRepository extends ServiceEntityRepository
         }
     }
 
-    /** @return mixed|null */
-    public function findPrevious()
+    public function findByYearAndMonth($date, $nextMonth)
     {
         try {
             return $this->getEntityManager()
                 ->createQueryBuilder()
                 ->select('r')
                 ->from(Ranking::class, 'r')
-                ->orderBy('r.computedAt', 'desc')
+                ->where('r.computedAt >= :date AND r.computedAt < :nextMonth')
+                ->setParameter('date', $date)
+                ->setParameter('nextMonth', $nextMonth)
+                ->getQuery()
+                ->getSingleResult();
+        } catch (NoResultException|NonUniqueResultException) {
+            return null;
+        }
+    }
+
+    /** @return mixed|null */
+    public function findPrevious($id): mixed
+    {
+        try {
+            return $this->getEntityManager()
+                ->createQueryBuilder()
+                ->select('r')
+                ->from(Ranking::class, 'r')
+                ->where('r.computedAt < (SELECT r2.computedAt FROM '.Ranking::class.' r2 WHERE r2.id = :id)')
+                ->orderBy('r.computedAt', 'DESC')
                 ->setMaxResults(1)
-                ->setFirstResult(1)
+                ->setParameter('id', $id)
+                ->getQuery()
+                ->getSingleResult();
+        } catch (NoResultException|NonUniqueResultException) {
+            return null;
+        }
+    }
+
+    /** @return mixed|null */
+    public function findNext($id): mixed
+    {
+        try {
+            return $this->getEntityManager()
+                ->createQueryBuilder()
+                ->select('r')
+                ->from(Ranking::class, 'r')
+                ->where('r.computedAt > (SELECT r2.computedAt FROM '.Ranking::class.' r2 WHERE r2.id = :id)')
+                ->orderBy('r.computedAt', 'ASC')
+                ->setMaxResults(1)
+                ->setParameter('id', $id)
                 ->getQuery()
                 ->getSingleResult();
         } catch (NoResultException|NonUniqueResultException) {
@@ -76,6 +114,28 @@ class RankingRepository extends ServiceEntityRepository
             ->where('c.rank is not null');
 
         $qb->orderBy('c.rank', 'asc');
+
+        $this->applyFilters($qb, $filters);
+
+        return $qb->getQuery();
+    }
+
+    /** @throws \Exception */
+    public function findCoastersRankedByRanking(int $rankingId, array $filters = []): Query
+    {
+        $qb = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('rh', 'c', 'p', 'm')
+            ->from(RankingHistory::class, 'rh')
+            ->innerJoin('rh.coaster', 'c')
+            ->innerJoin('c.park', 'p')
+            ->innerJoin('c.status', 's')
+            ->leftJoin('c.manufacturer', 'm')
+            ->where('rh.rank is not null')
+            ->andWhere('rh.ranking = :id')
+            ->setParameter('id', $rankingId);
+
+        $qb->orderBy('rh.rank', 'asc');
 
         $this->applyFilters($qb, $filters);
 
