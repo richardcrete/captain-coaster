@@ -19,25 +19,25 @@
                                         style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
                                     <option value=""
                                             {% if filters is not null or filters.sort == '' %}selected{% endif %}>
-                                        Tri par défaut
+                                        {{ 'filters.sorts.default'|trans() }}
                                     </option>
                                     <option value="updatedAt|asc"
                                             {% if filters.sort == 'updatedAt|asc' %}selected{% endif %}>
                                         <i class=""></i>
-                                        Du plus ancien au plus récent
+                                        {{ 'filters.sorts.reviews.updatedAt.asc'|trans() }}
                                     </option>
                                     <option value="updatedAt|desc"
                                             {% if filters.sort == 'updatedAt|desc' %}selected{% endif %}>
                                         <i class=""></i>
-                                        Du plus récent au plus ancien
+                                        {{ 'filters.sorts.reviews.updatedAt.desc' |trans()}}
                                     </option>
                                     <option value="value|desc" {% if filters.sort == 'value|desc' %}selected{% endif %}>
                                         <i class=""></i>
-                                        De la meilleure à la moins bonne note
+                                        {{ 'filters.sorts.reviews.value.desc' |trans()}}
                                     </option>
                                     <option value="value|asc" {% if filters.sort == 'value|asc' %}selected{% endif %}>
                                         <i class=""></i>
-                                        De la moins bonne à la meilleure note
+                                        {{ 'filters.sorts.reviews.value.asc' |trans()}}
                                     </option>
                                 </select>
                             </div>
