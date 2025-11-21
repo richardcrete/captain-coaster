@@ -421,30 +421,31 @@
             });
         };
 
-        var loadReviews = function (page) {
+        var loadReviews = function (scrollToTop) {
             $.ajax({
                 url: Routing.generate('coaster_reviews_ajax_load', {
                     'slug': '{{ coaster.slug }}',
-                    'page': page || 1,
                     '_locale': '{{ app.request.locale }}',
                 }),
                 type: 'GET',
+                data: $('form.review-list').serialize() !== '' ? $('form.review-list').serialize() : {page: 1, filters: {sort: ''}},
             }).done(function (data) {
                 $('#coaster-reviews').replaceWith(data);
 
-                if (page != undefined) {
+                if (scrollToTop) {
                     document.getElementById('coaster-reviews').scrollIntoView();
                 }
 
                 $('ul.pagination a').click(function (e) {
                     event.preventDefault();
-                    loadReviews($(this).data('page') || 1);
+                    $('#filter-page').val(e.target.getAttribute("data-page"));
+                    loadReviews(true);
                 });
             });
         }
 
         loadImage();
-        loadReviews();
+        loadReviews(false);
 
         {% if countRatings %}
         var options = {

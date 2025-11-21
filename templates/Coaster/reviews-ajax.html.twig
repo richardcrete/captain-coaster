@@ -4,18 +4,52 @@
     <!-- Comments -->
     <div class="panel panel-flat">
         <div class="panel-heading">
-            <h6 class="panel-title">
-                <span class="text-semibold">
+            <h6 class="panel-title" style="display: flex;justify-content: space-between;flex-wrap: wrap;gap: 10px;">
+                <div style="display: flex;gap: 10px;align-items: center;">
+                <span class="text-semibold" style="flex-shrink: 0;">
                     <i class="icon-bubble-lines4 position-left"></i> {{ 'review.title'|trans }}
                     &nbsp;<span class="badge bg-primary">{{ reviews.getTotalItemCount() }}</span>
                 </span>
-                {% if coaster.isRateable %}
-                <div class="pull-right">
-                    <a class="text-muted" href="{{ path('review_form', {'id': coaster.id}) }}">
-                        <button type="button" class="btn btn-primary btn-rounded btn-xs"><i class="icon-plus22 position-left"></i> {{ 'review.send'| trans() }}</button>
-                    </a>
+                    {% if reviews.getTotalItemCount() > 1 %}
+                        <form class="review-list form-horizontal" style="max-width: 150px;">
+                            <input type="hidden" name="page" id="filter-page" value="{{ reviews.page|default(1) }}">
+
+                            <div class="form-group-xs no-margin-bottom">
+                                <select name="filters[sort]" class="form-control" onchange="loadReviews();"
+                                        style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                                    <option value=""
+                                            {% if filters is not null or filters.sort == '' %}selected{% endif %}>
+                                        Tri par défaut
+                                    </option>
+                                    <option value="updatedAt|asc"
+                                            {% if filters.sort == 'updatedAt|asc' %}selected{% endif %}>
+                                        <i class=""></i>
+                                        Du plus ancien au plus récent
+                                    </option>
+                                    <option value="updatedAt|desc"
+                                            {% if filters.sort == 'updatedAt|desc' %}selected{% endif %}>
+                                        <i class=""></i>
+                                        Du plus récent au plus ancien
+                                    </option>
+                                    <option value="value|desc" {% if filters.sort == 'value|desc' %}selected{% endif %}>
+                                        <i class=""></i>
+                                        De la meilleure à la moins bonne note
+                                    </option>
+                                    <option value="value|asc" {% if filters.sort == 'value|asc' %}selected{% endif %}>
+                                        <i class=""></i>
+                                        De la moins bonne à la meilleure note
+                                    </option>
+                                </select>
+                            </div>
+                        </form>
+                    {% endif %}
                 </div>
-            {% endif %}
+                {% if coaster.isRateable %}
+                    <a class="text-muted" href="{{ path('review_form', {'id': coaster.id}) }}">
+                        <button type="button" class="btn btn-primary btn-rounded btn-xs"><i
+                                class="icon-plus22 position-left"></i> {{ 'review.send'| trans() }}</button>
+                    </a>
+                {% endif %}
             </h6>
 
         </div>
